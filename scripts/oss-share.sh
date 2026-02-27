@@ -22,13 +22,13 @@ fi
 # --- Environment detection ---
 OPENCLAW_DIR="/home/node/.openclaw"
 OPENCLAW_WS="${OPENCLAW_DIR}/workspace"
-OSS_CONFIG="$HOME/.ossutilconfig"
-if [[ -d "$OPENCLAW_DIR" ]]; then
-    OSS_CONFIG="${OPENCLAW_WS}/.ossutilconfig"
-fi
-if [[ -f "$OSS_CONFIG" ]]; then
-    export OSSUTILCONFIG="$OSS_CONFIG"
-fi
+OSS_CONFIG_ARGS=()
+for cfg in "${OPENCLAW_WS}/.ossutilconfig" "$HOME/.ossutilconfig"; do
+    if [[ -f "$cfg" ]]; then
+        OSS_CONFIG_ARGS=(--config-file "$cfg")
+        break
+    fi
+done
 
 # --- Args ---
 OSS_PATH="${1:-}"
@@ -60,4 +60,4 @@ parse_duration() {
 TIMEOUT=$(parse_duration "$DURATION")
 
 # --- Generate presigned URL ---
-ossutil sign --timeout "$TIMEOUT" "$OSS_PATH"
+ossutil "${OSS_CONFIG_ARGS[@]}" sign --timeout "$TIMEOUT" "$OSS_PATH"

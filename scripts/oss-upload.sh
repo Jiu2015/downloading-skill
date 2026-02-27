@@ -26,13 +26,13 @@ fi
 # --- Environment detection ---
 OPENCLAW_DIR="/home/node/.openclaw"
 OPENCLAW_WS="${OPENCLAW_DIR}/workspace"
-OSS_CONFIG="$HOME/.ossutilconfig"
-if [[ -d "$OPENCLAW_DIR" ]]; then
-    OSS_CONFIG="${OPENCLAW_WS}/.ossutilconfig"
-fi
-if [[ -f "$OSS_CONFIG" ]]; then
-    export OSSUTILCONFIG="$OSS_CONFIG"
-fi
+OSS_CONFIG_ARGS=()
+for cfg in "${OPENCLAW_WS}/.ossutilconfig" "$HOME/.ossutilconfig"; do
+    if [[ -f "$cfg" ]]; then
+        OSS_CONFIG_ARGS=(--config-file "$cfg")
+        break
+    fi
+done
 
 # --- Parse args ---
 LOCAL_PATH=""
@@ -70,12 +70,9 @@ fi
 if [[ -z "$OSS_PATH" ]]; then
     # Try to detect default bucket from ossutil config
     DEFAULT_BUCKET=""
-    if [[ -f "$OSS_CONFIG" ]]; then
-        DEFAULT_BUCKET=$(grep -oP 'defaultBucket\s*=\s*\K\S+' "$OSS_CONFIG" 2>/dev/null || true)
-    fi
     if [[ -z "$DEFAULT_BUCKET" ]]; then
         # List buckets and use first one
-        DEFAULT_BUCKET=$(ossutil ls -s 2>/dev/null | grep '^oss://' | head -1 | sed 's|/$||' || true)
+        DEFAULT_BUCKET=$(ossutil "${OSS_CONFIG_ARGS[@]}" ls -s 2>/dev/null | grep '^oss://' | head -1 | sed 's|/$||' || true)
     fi
     if [[ -z "$DEFAULT_BUCKET" ]]; then
         echo "Error: no OSS_PATH specified and no default bucket found." >&2
@@ -104,7 +101,7 @@ ARGS+=("$LOCAL_PATH" "$OSS_PATH")
 
 # --- Upload ---
 echo "--> Uploading $LOCAL_PATH to $OSS_PATH ..."
-ossutil "${ARGS[@]}"
+ossutil "${OSS_CONFIG_ARGS[@]}" "${ARGS[@]}"
 echo "Done: uploaded to $OSS_PATH"
 
 # --- Optional: generate presigned URL ---
@@ -115,6 +112,6 @@ if $SIGN_AFTER; then
     else
         echo ""
         echo "--> Generating presigned URL (12h)..."
-        ossutil sign --timeout 43200 "$OSS_PATH"
+        ossutil "${OSS_CONFIG_ARGS[@]}" sign --timeout 43200 "$OSS_PATH"
     fi
 fi

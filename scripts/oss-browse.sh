@@ -28,13 +28,13 @@ fi
 # --- Environment detection ---
 OPENCLAW_DIR="/home/node/.openclaw"
 OPENCLAW_WS="${OPENCLAW_DIR}/workspace"
-OSS_CONFIG="$HOME/.ossutilconfig"
-if [[ -d "$OPENCLAW_DIR" ]]; then
-    OSS_CONFIG="${OPENCLAW_WS}/.ossutilconfig"
-fi
-if [[ -f "$OSS_CONFIG" ]]; then
-    export OSSUTILCONFIG="$OSS_CONFIG"
-fi
+OSS_CONFIG_ARGS=()
+for cfg in "${OPENCLAW_WS}/.ossutilconfig" "$HOME/.ossutilconfig"; do
+    if [[ -f "$cfg" ]]; then
+        OSS_CONFIG_ARGS=(--config-file "$cfg")
+        break
+    fi
+done
 
 # --- Parse args ---
 OSS_PATH=""
@@ -58,11 +58,11 @@ if $DU_MODE; then
         echo "Error: --du requires an OSS_PATH" >&2
         usage
     fi
-    ossutil du "$OSS_PATH"
+    ossutil "${OSS_CONFIG_ARGS[@]}" du "$OSS_PATH"
 elif [[ -z "$OSS_PATH" ]]; then
     # List all buckets
-    ossutil ls
+    ossutil "${OSS_CONFIG_ARGS[@]}" ls
 else
     # List objects at path
-    ossutil ls "$OSS_PATH"
+    ossutil "${OSS_CONFIG_ARGS[@]}" ls "$OSS_PATH"
 fi
