@@ -14,21 +14,24 @@ usage() {
     exit 1
 }
 
+# --- Environment detection ---
+OPENCLAW_DIR="/home/node/.openclaw"
+OPENCLAW_WS="${OPENCLAW_DIR}/workspace"
+DEFAULT_DL_DIR="."
+if [[ -d "$OPENCLAW_DIR" ]]; then
+    export PATH="${OPENCLAW_DIR}/pyenv/bin:$PATH"
+    export PYTHONPATH="${OPENCLAW_DIR}/pyenv"
+    DEFAULT_DL_DIR="${OPENCLAW_WS}/downloads"
+fi
+
 # --- Args ---
 INPUT="${1:-}"
 [[ -z "$INPUT" ]] && usage
 
 LANG="${2:-en}"
-OUTPUT_DIR="${3:-.}"
+OUTPUT_DIR="${3:-$DEFAULT_DL_DIR}"
 
 mkdir -p "$OUTPUT_DIR"
-
-# --- Environment detection ---
-OPENCLAW_DIR="/home/node/.openclaw"
-if [[ -d "$OPENCLAW_DIR" ]]; then
-    export PATH="${OPENCLAW_DIR}/pyenv/bin:$PATH"
-    export PYTHONPATH="${OPENCLAW_DIR}/pyenv"
-fi
 
 # If input looks like a URL, use yt-dlp
 if [[ "$INPUT" =~ ^https?:// ]]; then

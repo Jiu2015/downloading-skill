@@ -11,11 +11,19 @@ usage() {
     exit 1
 }
 
+# --- Environment detection ---
+OPENCLAW_DIR="/home/node/.openclaw"
+OPENCLAW_WS="${OPENCLAW_DIR}/workspace"
+DEFAULT_DL_DIR=""
+if [[ -d "$OPENCLAW_DIR" ]]; then
+    DEFAULT_DL_DIR="${OPENCLAW_WS}/downloads"
+fi
+
 # --- Args ---
 URL="${1:-}"
 [[ -z "$URL" ]] && usage
 
-OUTPUT="${2:-}"
+OUTPUT="${2:-$DEFAULT_DL_DIR}"
 
 # --- Download with aria2c (preferred) or wget fallback ---
 if command -v aria2c &>/dev/null; then

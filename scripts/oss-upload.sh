@@ -23,6 +23,17 @@ if ! command -v ossutil &>/dev/null; then
     exit 1
 fi
 
+# --- Environment detection ---
+OPENCLAW_DIR="/home/node/.openclaw"
+OPENCLAW_WS="${OPENCLAW_DIR}/workspace"
+OSS_CONFIG="$HOME/.ossutilconfig"
+if [[ -d "$OPENCLAW_DIR" ]]; then
+    OSS_CONFIG="${OPENCLAW_WS}/.ossutilconfig"
+fi
+if [[ -f "$OSS_CONFIG" ]]; then
+    export OSSUTILCONFIG="$OSS_CONFIG"
+fi
+
 # --- Parse args ---
 LOCAL_PATH=""
 OSS_PATH=""
@@ -59,8 +70,8 @@ fi
 if [[ -z "$OSS_PATH" ]]; then
     # Try to detect default bucket from ossutil config
     DEFAULT_BUCKET=""
-    if [[ -f ~/.ossutilconfig ]]; then
-        DEFAULT_BUCKET=$(grep -oP 'defaultBucket\s*=\s*\K\S+' ~/.ossutilconfig 2>/dev/null || true)
+    if [[ -f "$OSS_CONFIG" ]]; then
+        DEFAULT_BUCKET=$(grep -oP 'defaultBucket\s*=\s*\K\S+' "$OSS_CONFIG" 2>/dev/null || true)
     fi
     if [[ -z "$DEFAULT_BUCKET" ]]; then
         # List buckets and use first one

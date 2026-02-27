@@ -22,16 +22,19 @@ fi
 
 # --- Environment detection ---
 OPENCLAW_DIR="/home/node/.openclaw"
+OPENCLAW_WS="${OPENCLAW_DIR}/workspace"
+DEFAULT_DL_DIR="./gallery-dl"
 if [[ -d "$OPENCLAW_DIR" ]]; then
     export PATH="${OPENCLAW_DIR}/pyenv/bin:$PATH"
     export PYTHONPATH="${OPENCLAW_DIR}/pyenv"
+    DEFAULT_DL_DIR="${OPENCLAW_WS}/downloads/gallery-dl"
 fi
 
 # --- Args ---
 URL="${1:-}"
 [[ -z "$URL" ]] && usage
 
-OUTPUT_DIR="${2:-./gallery-dl}"
+OUTPUT_DIR="${2:-$DEFAULT_DL_DIR}"
 shift 2 2>/dev/null || shift $#
 
 mkdir -p "$OUTPUT_DIR"

@@ -18,11 +18,19 @@ if ! command -v aria2c &>/dev/null; then
     exit 1
 fi
 
+# --- Environment detection ---
+OPENCLAW_DIR="/home/node/.openclaw"
+OPENCLAW_WS="${OPENCLAW_DIR}/workspace"
+DEFAULT_DL_DIR="."
+if [[ -d "$OPENCLAW_DIR" ]]; then
+    DEFAULT_DL_DIR="${OPENCLAW_WS}/downloads"
+fi
+
 # --- Args ---
 INPUT="${1:-}"
 [[ -z "$INPUT" ]] && usage
 
-OUTPUT_DIR="${2:-.}"
+OUTPUT_DIR="${2:-$DEFAULT_DL_DIR}"
 
 mkdir -p "$OUTPUT_DIR"
 

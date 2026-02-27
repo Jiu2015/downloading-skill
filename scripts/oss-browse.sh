@@ -25,6 +25,17 @@ if ! command -v ossutil &>/dev/null; then
     exit 1
 fi
 
+# --- Environment detection ---
+OPENCLAW_DIR="/home/node/.openclaw"
+OPENCLAW_WS="${OPENCLAW_DIR}/workspace"
+OSS_CONFIG="$HOME/.ossutilconfig"
+if [[ -d "$OPENCLAW_DIR" ]]; then
+    OSS_CONFIG="${OPENCLAW_WS}/.ossutilconfig"
+fi
+if [[ -f "$OSS_CONFIG" ]]; then
+    export OSSUTILCONFIG="$OSS_CONFIG"
+fi
+
 # --- Parse args ---
 OSS_PATH=""
 DU_MODE=false

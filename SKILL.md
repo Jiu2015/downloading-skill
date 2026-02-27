@@ -39,6 +39,19 @@ metadata:
 
 Find it. Download it. Any resource, any format. Optionally upload to OSS and share.
 
+## OpenClaw Environment
+
+When running in OpenClaw Docker, all scripts auto-detect the environment and adjust paths:
+
+| Setting | Path |
+|---------|------|
+| Default download dir | `/home/node/.openclaw/workspace/downloads/` |
+| Python tools (yt-dlp, gallery-dl, spotdl) | `/home/node/.openclaw/pyenv/bin/` |
+| Bilibili cookies | `/home/node/.openclaw/workspace/.bili_cookies.txt` |
+| OSS config | `/home/node/.openclaw/workspace/.ossutilconfig` |
+
+No manual path configuration needed — scripts handle this automatically.
+
 ## Toolkit
 
 ```bash
