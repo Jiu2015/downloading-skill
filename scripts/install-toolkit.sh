@@ -7,8 +7,10 @@ echo "=== Downloading Toolkit Installer ==="
 
 # --- Environment detection ---
 OPENCLAW=false
+OPENCLAW_PYENV="/home/node/.openclaw/pyenv"
 if [[ -d "/home/node/.openclaw" ]]; then
     OPENCLAW=true
+    export PATH="${OPENCLAW_PYENV}/bin:$PATH"
     echo "[env] OpenClaw Docker detected"
 fi
 
@@ -49,13 +51,21 @@ install_pip() {
     local pip_args=()
 
     if $OPENCLAW; then
-        local oc_pip="/home/node/.openclaw/pyenv/bin/pip3"
-        local oc_target="/home/node/.openclaw/pyenv"
+        local oc_pip="${OPENCLAW_PYENV}/bin/pip3"
         if [[ -x "$oc_pip" ]]; then
             pip_cmd="$oc_pip"
         else
-            # No venv pip — install into OpenClaw pyenv dir with system pip
-            pip_args+=(--target "$oc_target")
+            # No venv pip — ensure venv exists, then use its pip
+            if [[ ! -d "${OPENCLAW_PYENV}/bin" ]]; then
+                echo "  --> Creating Python venv at ${OPENCLAW_PYENV}..."
+                python3 -m venv "$OPENCLAW_PYENV" 2>/dev/null || true
+            fi
+            if [[ -x "$oc_pip" ]]; then
+                pip_cmd="$oc_pip"
+            else
+                # Venv creation failed — fall back to system pip (Docker, safe)
+                pip_args+=(--break-system-packages)
+            fi
         fi
     fi
 
