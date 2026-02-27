@@ -86,13 +86,14 @@ install_ossutil() {
         return
     fi
 
-    echo "  --> Installing ossutil 2.0..."
+    echo "  --> Installing ossutil v2..."
+    local ver="2.2.1"
     local url=""
     case "${OS}-${ARCH}" in
-        Darwin-arm64)  url="https://gosspublic.alicdn.com/ossutil/v2/2.0.3/ossutil-2.0.3-darwin-arm64.zip" ;;
-        Darwin-x86_64) url="https://gosspublic.alicdn.com/ossutil/v2/2.0.3/ossutil-2.0.3-darwin-amd64.zip" ;;
-        Linux-x86_64)  url="https://gosspublic.alicdn.com/ossutil/v2/2.0.3/ossutil-2.0.3-linux-amd64.zip" ;;
-        Linux-aarch64) url="https://gosspublic.alicdn.com/ossutil/v2/2.0.3/ossutil-2.0.3-linux-arm64.zip" ;;
+        Darwin-arm64)  url="https://gosspublic.alicdn.com/ossutil/v2/${ver}/ossutil-${ver}-mac-arm64.zip" ;;
+        Darwin-x86_64) url="https://gosspublic.alicdn.com/ossutil/v2/${ver}/ossutil-${ver}-mac-amd64.zip" ;;
+        Linux-x86_64)  url="https://gosspublic.alicdn.com/ossutil/v2/${ver}/ossutil-${ver}-linux-amd64.zip" ;;
+        Linux-aarch64) url="https://gosspublic.alicdn.com/ossutil/v2/${ver}/ossutil-${ver}-linux-arm64.zip" ;;
         *)
             echo "  !!  Unsupported platform for ossutil: ${OS}-${ARCH}" >&2
             return 1
