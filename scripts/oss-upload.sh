@@ -111,7 +111,10 @@ if $SIGN_AFTER; then
         echo "Note: --sign with directories is not supported. Use oss-share.sh on individual files."
     else
         echo ""
-        echo "--> Generating presigned URL (12h)..."
-        ossutil "${OSS_CONFIG_ARGS[@]}" sign --timeout 43200 "$OSS_PATH"
+        echo "--> Generating presigned URL (12h, force download)..."
+        SIGN_FNAME="$(basename "$OSS_PATH")"
+        ossutil "${OSS_CONFIG_ARGS[@]}" sign --timeout 43200 \
+            --query-param "response-content-disposition=attachment;filename=${SIGN_FNAME}" \
+            "$OSS_PATH"
     fi
 fi
