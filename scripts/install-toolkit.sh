@@ -46,16 +46,25 @@ install_brew() {
 
 install_pip() {
     local pip_cmd="pip3"
+    local pip_args=()
+
     if $OPENCLAW; then
-        pip_cmd="/home/node/.openclaw/pyenv/bin/pip3"
-        [[ -x "$pip_cmd" ]] || pip_cmd="pip3"
+        local oc_pip="/home/node/.openclaw/pyenv/bin/pip3"
+        local oc_target="/home/node/.openclaw/pyenv"
+        if [[ -x "$oc_pip" ]]; then
+            pip_cmd="$oc_pip"
+        else
+            # No venv pip — install into OpenClaw pyenv dir with system pip
+            pip_args+=(--target "$oc_target")
+        fi
     fi
+
     for pkg in "$@"; do
         if "$pip_cmd" show "$pkg" &>/dev/null 2>&1; then
             echo "  ok  $pkg (already installed)"
         else
             echo "  --> Installing $pkg..."
-            "$pip_cmd" install "$pkg"
+            "$pip_cmd" install "${pip_args[@]}" "$pkg"
         fi
     done
 }
