@@ -1,0 +1,27 @@
+# Downloads
+downloads/
+*.part
+*.aria2
+
+# Cookies and credentials
+cookies.txt
+*.cookies.txt
+.ossutilconfig
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Torrent files (downloaded content)
+*.torrent
+
+# Log files
+*.log
