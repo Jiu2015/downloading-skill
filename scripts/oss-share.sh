@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Generate presigned download URL for OSS objects.
-# Usage: oss-share.sh OSS_PATH [DURATION] [--download]
-#   OSS_PATH:   oss://bucket/path/to/file
-#   DURATION:   1h, 6h, 12h (default), 1d, 7d
-#   --download: force browser to download instead of preview
+# Generate presigned URL for OSS objects.
+# Usage: oss-share.sh OSS_PATH [DURATION] [--preview]
+#   OSS_PATH:  oss://bucket/path/to/file
+#   DURATION:  1h, 6h, 12h (default), 1d, 7d
+#   --preview: allow browser preview (default: force download)
 set -euo pipefail
 
 usage() {
-    echo "Usage: $(basename "$0") OSS_PATH [DURATION] [--download]"
+    echo "Usage: $(basename "$0") OSS_PATH [DURATION] [--preview]"
     echo ""
-    echo "  OSS_PATH    oss://bucket/path/to/file"
-    echo "  DURATION    1h, 6h, 12h (default), 1d, 7d"
-    echo "  --download  force download (not preview) in browser"
+    echo "  OSS_PATH   oss://bucket/path/to/file"
+    echo "  DURATION   1h, 6h, 12h (default), 1d, 7d"
+    echo "  --preview  allow browser preview (default: force download)"
     exit 1
 }
 
@@ -35,11 +35,11 @@ done
 # --- Args ---
 OSS_PATH=""
 DURATION="12h"
-FORCE_DOWNLOAD=false
+PREVIEW=false
 
 for arg in "$@"; do
     case "$arg" in
-        --download) FORCE_DOWNLOAD=true ;;
+        --preview)  PREVIEW=true ;;
         -h|--help)  usage ;;
         oss://*)    OSS_PATH="$arg" ;;
         *)          DURATION="$arg" ;;
@@ -74,8 +74,8 @@ TIMEOUT=$(parse_duration "$DURATION")
 # --- Generate presigned URL ---
 SIGN_ARGS=("${OSS_CONFIG_ARGS[@]}" sign --timeout "$TIMEOUT")
 
-if $FORCE_DOWNLOAD; then
-    # Extract filename from OSS path for Content-Disposition header
+if ! $PREVIEW; then
+    # Default: force download via Content-Disposition header
     FILENAME="$(basename "$OSS_PATH")"
     SIGN_ARGS+=(--query-param "response-content-disposition=attachment;filename=${FILENAME}")
 fi
