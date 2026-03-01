@@ -26,9 +26,11 @@ fi
 # --- Environment detection ---
 OPENCLAW_DIR="/home/node/.openclaw"
 OPENCLAW_WS="${OPENCLAW_DIR}/workspace"
+OSS_CONFIG_FILE=""
 OSS_CONFIG_ARGS=()
 for cfg in "${OPENCLAW_WS}/.ossutilconfig" "$HOME/.ossutilconfig"; do
     if [[ -f "$cfg" ]]; then
+        OSS_CONFIG_FILE="$cfg"
         OSS_CONFIG_ARGS=(--config-file "$cfg")
         break
     fi
@@ -68,11 +70,19 @@ fi
 
 # --- Default OSS path ---
 if [[ -z "$OSS_PATH" ]]; then
-    # Try to detect default bucket from ossutil config
+    # Try to read cached default bucket from config, then fall back to listing
     DEFAULT_BUCKET=""
+    if [[ -n "$OSS_CONFIG_FILE" ]]; then
+        DEFAULT_BUCKET=$(grep -oP '^defaultBucket\s*=\s*\K\S+' "$OSS_CONFIG_FILE" 2>/dev/null || true)
+    fi
     if [[ -z "$DEFAULT_BUCKET" ]]; then
         # List buckets and use first one
         DEFAULT_BUCKET=$(ossutil "${OSS_CONFIG_ARGS[@]}" ls -s 2>/dev/null | grep '^oss://' | head -1 | sed 's|/$||' || true)
+        # Cache it into config file for next time
+        if [[ -n "$DEFAULT_BUCKET" && -n "$OSS_CONFIG_FILE" ]]; then
+            echo "defaultBucket = ${DEFAULT_BUCKET}" >> "$OSS_CONFIG_FILE"
+            echo "Note: saved defaultBucket=${DEFAULT_BUCKET} to $OSS_CONFIG_FILE"
+        fi
     fi
     if [[ -z "$DEFAULT_BUCKET" ]]; then
         echo "Error: no OSS_PATH specified and no default bucket found." >&2
